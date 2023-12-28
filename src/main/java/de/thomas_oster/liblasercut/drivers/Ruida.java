@@ -92,6 +92,8 @@ public class Ruida extends LaserCutter
   protected static final String SETTING_MAX_POWER = "Max laser power (%)";
   protected static final String SETTING_BED_WIDTH = "Bed width (mm)";
   protected static final String SETTING_BED_HEIGHT = "Bed height (mm)";
+  protected static final String SETTING_INVERT_X = "Invert X Axis";
+  protected static final String SETTING_INVERT_Y = "Invert Y Axis";
   protected static final Locale FORMAT_LOCALE = Locale.US;
 
   protected static final String[] uploadMethodList = {UPLOAD_METHOD_FILE, UPLOAD_METHOD_IP, UPLOAD_METHOD_SERIAL};
@@ -267,8 +269,8 @@ public class Ruida extends LaserCutter
 
   private void vector(double x, double y, double dpi, boolean as_cut, boolean force_abs) throws IOException
   {
-    double x_mm = Util.px2mm(x, dpi);
-    double y_mm = Util.px2mm(y, dpi);
+    double x_mm = isInvertXaxis() ? - Util.px2mm(x, dpi) : Util.px2mm(x, dpi);
+    double y_mm = isInvertYaxis() ? - Util.px2mm(y, dpi) : Util.px2mm(y, dpi);
     boolean as_absolute;
 
     /* compute distance to last known position */
@@ -764,6 +766,30 @@ public class Ruida extends LaserCutter
     this.BedHeight = BedHeight;
   }
 
+  protected boolean invertXaxis = false;
+
+  public boolean isInvertXaxis()
+  {
+    return invertXaxis;
+  }
+
+  public void setInvertXaxis(boolean invertXaxis)
+  {
+    this.invertXaxis = invertXaxis;
+  }
+
+  protected boolean invertYaxis = false;
+
+  public boolean isInvertYaxis()
+  {
+    return invertYaxis;
+  }
+
+  public void setInvertYaxis(boolean invertYaxis)
+  {
+    this.invertYaxis = invertYaxis;
+  }
+
   /**
    * Get the name for this driver.
    *
@@ -935,6 +961,9 @@ public class Ruida extends LaserCutter
     SETTING_MAX_POWER,
     SETTING_BED_WIDTH,
     SETTING_BED_HEIGHT,
+    SETTING_INVERT_X,
+    SETTING_INVERT_Y,
+
   };
 
   @Override
@@ -961,6 +990,10 @@ public class Ruida extends LaserCutter
       return this.getBedWidth();
     } else if (SETTING_BED_HEIGHT.equals(attribute)) {
       return this.getBedHeight();
+    } else if (SETTING_INVERT_X.equals(attribute)) {
+      return this.isInvertXaxis();
+    } else if (SETTING_INVERT_Y.equals(attribute)) {
+      return this.isInvertYaxis();
     }
     return null;
   }
@@ -994,6 +1027,10 @@ public class Ruida extends LaserCutter
       this.setBedHeigth((Double)value);
     } else if (SETTING_BED_WIDTH.equals(attribute)) {
       this.setBedWidth((Double)value);
+    } else if (SETTING_INVERT_X.equals(attribute)) {
+      this.setInvertXaxis((Boolean) value);
+    } else if (SETTING_INVERT_Y.equals(attribute)) {
+      this.setInvertYaxis((Boolean) value);
     }
   }
 
